@@ -8,14 +8,35 @@ const windowStateKeeper = require('electron-window-state')
 const debounce = require('lodash/debounce')
 const util = require('util')
 const { glob } = require('glob')
+const { execSync } = require('node:child_process')
 
 const readdir = util.promisify(fs.readdir)
 
 const isDev = !app.isPackaged
 
 const appRoot = isDev ? path.resolve(__dirname, '..', '..') : path.resolve(app.getAppPath(), '..', '..')
-const userDataPath = path.resolve(appRoot, 'userData')
+let userDataPath = path.resolve(appRoot, 'userData')
 const userPath = app.getPath('userData')
+let isInstalled = false
+if (process.platform == 'win32') {
+  const regRoots = ["HKLM", "HKCU"]
+  regRoots.forEach((regRoot) => { // Check if the apps GUID is installed for either current user or all users
+    try {
+      execSync(`reg query ${regRoot}\\Software\\6b6375ab-5409-4810-bf67-51a9c29f3bd3`)
+      isInstalled = true
+    } catch (err) {}
+  })
+} else {
+  try { // Check if the current folder is writable
+    fs.accessSync(appRoot, fs.constants.W_OK)
+    isInstalled = false
+  } catch (err) {
+    isInstalled = true
+  }
+}
+if (isInstalled) { // If the app is installed, use %appdata% or ~/.config for storing user data.
+  userDataPath = path.resolve(userPath, 'userData')
+}
 
 let win = null
 const initWindow = () => {

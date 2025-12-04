@@ -4,6 +4,7 @@
   "main": "./dist/electron/main/main.js",
   "author": "biuuu <https://github.com/biuuu>",
   "homepage": "https://github.com/biuuu/genshin-wish-export",
+  "description": "A tool to export and save wish history from Genshin Impact",
   "license": "MIT",
   "scripts": {
     "dev": "node .electron-vite/dev-runner.js",
@@ -24,7 +25,8 @@
   "build": {
     "nsis": {
       "oneClick": false,
-      "allowToChangeInstallationDirectory": true
+      "allowToChangeInstallationDirectory": true,
+      "guid": "6b6375ab-5409-4810-bf67-51a9c29f3bd3"
     },
     "asar": false,
     "extraFiles": [],
@@ -62,10 +64,11 @@
     },
     "win": {
       "icon": "build/icons/icon.ico",
-      "target": "zip"
+      "target": ["zip", "nsis"]
     },
     "linux": {
-      "target": "deb",
+      "target": ["tar.gz", "deb", "pacman"],
+      "category": "Game",
       "icon": "build/icons"
     }
   },
