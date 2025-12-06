@@ -6,11 +6,15 @@
   "homepage": "https://github.com/biuuu/genshin-wish-export",
   "description": "A tool to export and save wish history from Genshin Impact",
   "license": "MIT",
+  "config": {
+    "appGuid": "6b6375ab-5409-4810-bf67-51a9c29f3bd3"
+  },
   "scripts": {
     "dev": "node .electron-vite/dev-runner.js",
-    "build": "cross-env BUILD_TARGET=clean node .electron-vite/build.js  && electron-builder",
-    "build:win32": "cross-env BUILD_TARGET=clean node .electron-vite/build.js  && electron-builder --win  --ia32",
-    "build:win64": "cross-env BUILD_TARGET=clean node .electron-vite/build.js  && electron-builder --win  --x64",
+    "build": "cross-env BUILD_TARGET=clean node .electron-vite/build.js && electron-builder",
+    "build:multi": "cross-env BUILD_TARGET=clean node .electron-vite/build.js && electron-builder --win --x64 --linux",
+    "build:win32": "cross-env BUILD_TARGET=clean node .electron-vite/build.js  && electron-builder --win --ia32",
+    "build:win64": "cross-env BUILD_TARGET=clean node .electron-vite/build.js  && electron-builder --win --x64",
     "build:linux": "cross-env BUILD_TARGET=clean node .electron-vite/build.js && electron-builder --linux",
     "build:mac": "cross-env BUILD_TARGET=clean node .electron-vite/build.js  && electron-builder --mac",
     "build:dir": "cross-env BUILD_TARGET=clean node .electron-vite/build.js  && electron-builder --dir",
@@ -19,6 +23,8 @@
     "dev:web": "cross-env TARGET=web node .electron-vite/dev-runner.js",
     "start": "electron ./src/main/main.js",
     "build-update": "node .electron-vite/update.js",
+    "setup-release:win": "node .electron-vite/release.js win",
+    "setup-release:linux": "node .electron-vite/release.js linux",
     "dep:upgrade": "yarn upgrade-interactive --latest",
     "postinstall": "electron-builder install-app-deps"
   },
@@ -28,7 +34,7 @@
       "allowToChangeInstallationDirectory": true,
       "guid": "6b6375ab-5409-4810-bf67-51a9c29f3bd3"
     },
-    "asar": false,
+    "asar": true,
     "extraFiles": [],
     "publish": [
       {
@@ -64,10 +70,17 @@
     },
     "win": {
       "icon": "build/icons/icon.ico",
-      "target": ["zip", "nsis"]
+      "target": [
+        "zip",
+        "nsis"
+      ]
     },
     "linux": {
-      "target": ["tar.gz", "deb", "pacman"],
+      "target": [
+        "tar.gz",
+        "pacman",
+        "deb"
+      ],
       "category": "Game",
       "icon": "build/icons"
     }

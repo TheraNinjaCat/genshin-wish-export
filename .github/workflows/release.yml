@@ -6,8 +6,8 @@ on:
 name: Upload Release Asset
 
 jobs:
-  build:
-    name: Upload Release Asset
+  build-win:
+    name: Build Windows Assets
     runs-on: windows-latest
     steps:
       - name: Checkout code
@@ -20,34 +20,56 @@ jobs:
         run: |
           yarn --frozen-lockfile
           yarn build:win64
-          yarn build-update
-      - name: Create Release
-        if: success()
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          yarn build-update:win
+          yarn setup-release:win
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-assets
+          path: ./build/win/
+  build-linux:
+    name: Build Linux Assets
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Use Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+      - name: Build App
+        run: |
+          yarn --frozen-lockfile
+          yarn build:linux
+          yarn setup-release:linux
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-assets
+          path: ./build/linux/
+  create-release:
+    name: Create release
+    needs: [build-win, build-linux]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download Windows Assets
+        uses: actions/download-artifact@v4
+        with:
+          name: windows-assets
+          path: ./release-assets
+      - name: Download Linux Assets
+        uses: actions/download-artifact@v4
+        with:
+          name: linux-assets
+          path: ./release-assets
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        if: github.ref_type == 'tag'
         with:
           tag_name: ${{ github.ref }}
           release_name: Release ${{ github.ref }}
-          draft: false
+          draft: true
           prerelease: false
-      - name: Upload Release Asset
-        if: success()
-        id: upload-release-asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
-          asset_path: ./build/app.zip
-          asset_name: Genshin-Wish-Export.zip
-          asset_content_type: application/zip
-      - name: Deploy update
-        if: success()
-        uses: crazy-max/ghaction-github-pages@v2
-        with:
-          commit_message: Update app
-          build_dir: ./build/update
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          make_latest: true
+          token: ${{ secrets.GITHUB_TOKEN }}
+          files: ./release-assets/*

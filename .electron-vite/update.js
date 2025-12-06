@@ -12,20 +12,19 @@ const hash = (data, type = 'sha256') => {
 
 const createZip = (filePath, dest) => {
   const zip = new AdmZip()
-  zip.addLocalFolder(filePath)
+  zip.addLocalFile(filePath)
   zip.toBuffer()
   zip.writeZip(dest)
 }
 
 const start = async () => {
-  copyAppZip()
-  const appPath = './build/win-unpacked/resources/app'
+  let target = 'win'
+  if (process.argv[2] === 'linux') target = 'linux'
+  const appPath = `./build/${target}-unpacked/resources/app.asar`
   const name = 'app.zip'
-  const outputPath = path.resolve('./build/update/update/')
+  const outputPath = path.resolve('./build/', target)
   const zipPath = path.resolve(outputPath, name)
   await fs.ensureDir(outputPath)
-  await fs.emptyDir(outputPath)
-  await fs.outputFile('./build/update/CNAME', 'genshin-gacha-export.danmu9.com')
   createZip(appPath, zipPath)
   const buffer = await fs.readFile(zipPath)
   const sha256 = hash(buffer)
@@ -39,25 +38,6 @@ const start = async () => {
     name: `${hashName}.zip`,
     hash: sha256
   })
-  copyHTML()
-}
-
-const copyAppZip = () => {
-  try {
-    const dir = path.resolve('./build')
-    const filePath = path.resolve(dir, `Genshin Wish Export-${version}-win.zip`)
-    fs.copySync(filePath, path.join(dir, 'app.zip'))
-  } catch (e) {}
-}
-
-const copyHTML = () => {
-  try {
-    const output = path.resolve('./build/update/')
-    const dir = path.resolve('./src/web/')
-    fs.copySync(dir, output)
-  } catch (e) {
-    console.error(e)
-  }
 }
 
 start()

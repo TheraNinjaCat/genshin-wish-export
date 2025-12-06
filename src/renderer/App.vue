@@ -7,8 +7,11 @@
         <el-tooltip v-if="detail && state.status !== 'loading'" :content="ui.hint.newAccount" placement="bottom">
           <el-button @click="newUser()" plain icon="plus"  class="focus:outline-none"></el-button>
         </el-tooltip>
-        <el-tooltip v-if="state.status === 'updated'" :content="ui.hint.relaunchHint" placement="bottom">
+        <el-tooltip v-if="state.updateStatus === 'updated'" :content="ui.hint.relaunchHint" placement="bottom">
           <el-button @click="relaunch()" type="success" icon="refresh"   class="focus:outline-none" style="margin-left: 48px">{{ui.button.directUpdate}}</el-button>
+        </el-tooltip>
+        <el-tooltip v-if="state.updateStatus === 'available'" :content="ui.hint.updateHint" placement="bottom">
+          <el-button @click="openDownload()" type="success" icon="download"   class="focus:outline-none" style="margin-left: 48px">{{ui.button.downloadUpdate}}</el-button>
         </el-tooltip>
       </div>
       <div class="flex gap-2">
@@ -83,6 +86,7 @@ import { ElMessage } from 'element-plus'
 
 const state = reactive({
   status: 'init',
+  updateStatus: null,
   log: '',
   data: null,
   dataMap: new Map(),
@@ -216,6 +220,10 @@ const relaunch = async () => {
   await ipcRenderer.invoke('RELAUNCH')
 }
 
+const openDownload = async () => {
+  await ipcRenderer.invoke('OPEN_DOWNLOAD')
+}
+
 const maskUid = (uid) => {
   // return `${uid}`.replace(/(.{3})(.+)(.{3})$/, '$1***$3')
   return uid
@@ -260,6 +268,10 @@ const updateConfig = async () => {
   state.config = await ipcRenderer.invoke('GET_CONFIG')
 }
 
+const updateCheck = async () => {
+  state.updateStatus = await ipcRenderer.invoke('CHECK_UPDATE')
+}
+
 onMounted(async () => {
   await readData()
   await getI18nData()
@@ -272,15 +284,11 @@ onMounted(async () => {
     console.error(err)
   })
 
-  ipcRenderer.on('UPDATE_HINT', (event, message) => {
-    state.log = message
-    state.status = 'updated'
-  })
-
   ipcRenderer.on('AUTHKEY_TIMEOUT', (event, message) => {
     state.authkeyTimeout = message
   })
 
   await updateConfig()
+  updateCheck()
 })
 </script>
