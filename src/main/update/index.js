@@ -1,7 +1,6 @@
-const { app, ipcMain, shell } = require('electron')
+const { app, ipcMain } = require('electron')
 const fetch = require('electron-fetch').default
 const semver = require('semver')
-const util = require('util')
 const path = require('path')
 const OriginalFs = require('original-fs')
 const fs = require('fs-extra')
@@ -9,7 +8,6 @@ const AdmZip = require('adm-zip')
 const { version } = require('../../../package.json')
 const { hash, sendMsg, userPath } = require('../utils')
 const config = require('../config')
-const i18n = require('../i18n')
 
 async function download(url) {
   return fetch(url).then((response) => {
@@ -69,9 +67,10 @@ const update = async () => {
       OriginalFs.rmSync(appPath)
       OriginalFs.copyFileSync(asarPath, appPath)
       OriginalFs.rmSync(asarPath)
-      updateInfo.status = 'finished'
+      updateInfo.status = 'updated'
+    } else {
+      updateInfo.status = 'latest'
     }
-    updateInfo.status = 'latest'
   } catch (err) {
     updateInfo.status = 'failed'
     updateInfo.error = err
@@ -82,10 +81,6 @@ ipcMain.handle('CHECK_UPDATE', async () => {
   await update()
   if (updateInfo.error) sendMsg(updateInfo.error, 'ERROR')
   return updateInfo.status
-})
-
-ipcMain.handle('OPEN_DOWNLOAD', async () => {
-  shell.openExternal(updateURL)
 })
 
 const getUpdateInfo = () => updateInfo

@@ -1,4 +1,6 @@
 import * as IconComponents from "@element-plus/icons-vue";
+const { shell } = require('electron')
+
 const weaponTypeNames = new Set([
   '武器', 'Weapon', '무기', 'Arma', 'Arme', 'Оружие', 'อาวุธ', 'Vũ Khí', 'Waffe', 'Senjata'
 ])
@@ -16,6 +18,8 @@ const IconInstaller = (app) => {
   })
 }
 
+const openLink = (link) => shell.openExternal(link)
+
 export {
-  isWeapon, isCharacter, IconInstaller
+  isWeapon, isCharacter, IconInstaller, openLink
 }

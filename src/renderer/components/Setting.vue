@@ -70,6 +70,7 @@
 const { ipcRenderer, shell } = require('electron')
 import { computed, onMounted, reactive, ref } from 'vue'
 import { ElMessage } from 'element-plus'
+import { openLink } from '../utils.js'
 
 const emit = defineEmits(['close', 'changeLang', 'dataUpdated'])
 
@@ -122,7 +123,6 @@ const disableProxy = async () => {
 }
 
 const openGithub = () => shell.openExternal('https://github.com/biuuu/genshin-wish-export')
-const openLink = (link) => shell.openExternal(link)
 
 const exportUIGFJSON = async () => {
   data.loadingOfUIGFJSON = true

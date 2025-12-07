@@ -11,7 +11,7 @@
           <el-button @click="relaunch()" type="success" icon="refresh"   class="focus:outline-none" style="margin-left: 48px">{{ui.button.directUpdate}}</el-button>
         </el-tooltip>
         <el-tooltip v-if="state.updateStatus === 'available'" :content="ui.hint.updateHint" placement="bottom">
-          <el-button @click="openDownload()" type="success" icon="download"   class="focus:outline-none" style="margin-left: 48px">{{ui.button.downloadUpdate}}</el-button>
+          <el-button @click="openLink(`https://github.com/biuuu/genshin-wish-export/releases/latest`)" type="success" icon="download"   class="focus:outline-none" style="margin-left: 48px">{{ui.button.downloadUpdate}}</el-button>
         </el-tooltip>
       </div>
       <div class="flex gap-2">
@@ -82,6 +82,7 @@ import Setting from './components/Setting.vue'
 import gachaDetail from './gachaDetail'
 import { version } from '../../package.json'
 import gachaType from '../gachaType.json'
+import { openLink } from './utils.js'
 import { ElMessage } from 'element-plus'
 
 const state = reactive({
@@ -218,10 +219,6 @@ const newUser = async () => {
 
 const relaunch = async () => {
   await ipcRenderer.invoke('RELAUNCH')
-}
-
-const openDownload = async () => {
-  await ipcRenderer.invoke('OPEN_DOWNLOAD')
 }
 
 const maskUid = (uid) => {
