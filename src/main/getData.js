@@ -120,41 +120,56 @@ const mergeData = (local, origin) => {
 const detectGameType = async (userPath) => {
   let detectedGameTypes = []
   const lang = app.getLocale()
-  let folderNames = ['原神', 'Genshin Impact']
+  let folderNames = {
+    local: ['原神', 'Genshin Impact'],
+    cloud: ['miHoYo', 'HoYoverse']
+  }
   if (config.logType) {
     if (config.logType === 1) {
-      folderNames = folderNames.slice(0, 1) // CN only
+      folderNames.local = folderNames.slice(0, 1) // CN only
     } else if (config.logType === 2)  {
-      folderNames = folderNames.slice(1, 2) // Global only
+      folderNames.local = folderNames.slice(1, 2) // Global only
     } else if (config.logType === 3) {
-      folderNames = [] // Clear the list if 云原神 is selected
+      folderNames.local = [] // Clear the list if 云原神 is selected
     }
   }
   if (lang !== 'zh-CN') {
-    folderNames.reverse() // Reverse the folderName list to put Global first if the locale isn't CN
+    folderNames.local.reverse() // Reverse the folderName list to put Global first if the locale isn't CN
   }
-  for (const folderName of folderNames) {
-    try {
-      await fs.access(path.join(userPath, '/AppData/LocalLow/miHoYo/', folderName, 'output_log.txt'), fs.constants.F_OK)
-      detectedGameTypes.push(folderName)
-    } catch (e) {}
+  for (const gameType in folderNames) {
+    for (const folderName of folderNames[gameType]) {
+      let logPath
+      if (gameType == 'local') {
+        logPath = path.join(userPath, '/AppData/LocalLow/miHoYo/', folderName, 'output_log.txt')
+      } else {
+        logPath = path.join(userPath, '/AppData/Local/', folderName, 'GenshinImpactCloudGame/config/logs/MiHoYoSDK.log')
+      }
+      try {
+        await fs.access(logPath, fs.constants.F_OK)
+        detectedGameTypes.push([gameType, logPath])
+      } catch (err) {}
+    }
   }
-  try {
-    await fs.access(path.join(userPath, '/AppData/Local/', 'miHoYo/GenshinImpactCloudGame/config/logs/MiHoYoSDK.log'), fs.constants.F_OK)
-    detectedGameTypes.push('cloud')
-  } catch (e) {}
   return detectedGameTypes
 }
 
 let cacheFolder = null
-const getUrlFromGameCache = async (cacheFileLocation, updateCacheFolder=true) => {
-  const [cacheText, cacheFile] = await getCacheText(cacheFileLocation).catch((e) => {throw new Error('Cache file not found')})
+const getUrlFromGameCache = async (cacheFileLocation, options = {}) => {
+  const text = i18n.log
+  const { updateCacheFolder, isCloud } = options
+  let [cacheText, cacheFile] = []
+  if (isCloud) {
+      cacheText = await fs.readFile(cacheFileLocation, 'utf8').catch((e) => {throw new Error('Cache file not found')})
+      cacheFile = cacheFileLocation
+  } else {
+    [cacheText, cacheFile] = await getCacheText(cacheFileLocation).catch((e) => {throw new Error('Cache file not found')})
+  }
   const urlMch = cacheText.match(/https.+?auth_appid=webview_gacha.+?authkey=.+?game_biz=hk4e_\w+/g)
   if (urlMch) {
     if (updateCacheFolder) cacheFolder = cacheFile.replace(/Cache_Data[/\\]data_2$/, '')
     return urlMch[urlMch.length - 1]
   } else {
-    throw new Error('URL not found in game cache')
+    throw new Error(text.url.notFound, {cause: 'AutoDetectError'})
   }
 }
 
@@ -163,7 +178,7 @@ const readLog = async () => {
   try {
     // Manual game location
     if (config.gameDetection === 1 && config.gameLocation) {
-      return getUrlFromGameCache(config.gameLocation)
+      return await getUrlFromGameCache(config.gameLocation)
     }
     // Automatic game location
     let userPath
@@ -173,34 +188,31 @@ const readLog = async () => {
       userPath = app.getPath('home')
     }
     
-    const gameNames = await detectGameType(userPath)
-    if (!gameNames.length) {
-      sendMsg(text.file.notFound)
+    const gameTypes = await detectGameType(userPath)
+    if (!gameTypes.length) {
       throw new Error(text.file.notFound, {cause: 'AutoDetectError'})
     }
-
-    const urlResult = await Promise.all(gameNames.map(async gameName => {
-      if (gameName === 'cloud') {
-        return getUrlFromGameCache(path.join(userPath, '/AppData/Local/', 'miHoYo/GenshinImpactCloudGame/config/logs/MiHoYoSDK.log'), updateCacheFolder=false)
+    for (const [gameType, logPath] of gameTypes) {
+      if (gameType === 'cloud') {
+        return await getUrlFromGameCache(path.join(logPath), { updateCacheFolder: false, isCloud: true})
       } else {
-        const logText = await fs.readFile(`${userPath}/AppData/LocalLow/miHoYo/${gameName}/output_log.txt`, 'utf8')
+        const logText = await fs.readFile(logPath, 'utf8')
         const gamePathMatch = logText.match(/\w:\/.+(GenshinImpact_Data|YuanShen_Data)/)
         if (gamePathMatch) {
-          return getUrlFromGameCache(gamePathMatch[0])
+          return await getUrlFromGameCache(gamePathMatch[0])
         } else {
           throw new Error('Cannot determine game location from output_log.txt')
         }
       }
-    }))
-    for (let url of urlResult) {
-      if (url) return url
     }
-    sendMsg(text.url.notFound)
-    throw new Error(text.url.notFound)
+    throw new Error(text.url.notFound, {cause: 'AutoDetectError'})
   } catch (e) {
-    if (e.hasOwnProperty('cause')) throw e
-    console.error(e)
-    sendMsg(text.file.readFailed)
+    if (e.cause && e.cause === 'AutoDetectError') {
+      sendMsg(e) // Send AutoDetectErrors to front-end
+    } else{
+      console.error(e)
+      sendMsg(text.file.readFailed) // Else send generic error
+    }
     throw new Error(text.file.readFailed)
   }
 }
