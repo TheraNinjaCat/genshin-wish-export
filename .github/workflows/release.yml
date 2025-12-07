@@ -11,11 +11,11 @@ jobs:
     runs-on: windows-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v6
       - name: Use Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v6
         with:
-          node-version: 16
+          node-version: 24
       - name: Build App
         run: |
           yarn --frozen-lockfile
@@ -26,17 +26,21 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: windows-assets
-          path: ./build/win/
+          path: |
+            ./build/win/Genshin-Wish-Export.zip
+            ./build/win/Genshin-Wish-Export-Setup.exe
+            ./build/win/manifest.json
+            ./build/win/?????.zip
   build-linux:
     name: Build Linux Assets
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v6
       - name: Use Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v6
         with:
-          node-version: 16
+          node-version: 24
       - name: Build App
         run: |
           yarn --frozen-lockfile
@@ -46,7 +50,10 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: linux-assets
-          path: ./build/linux/
+          path: |
+            ./build/linux/Genshin-Wish-Export.tar.gz
+            ./build/linux/Genshin-Wish-Export.pacman
+            ./build/linux/Genshin-Wish-Export.deb
   create-release:
     name: Create release
     needs: [build-win, build-linux]
@@ -67,9 +74,15 @@ jobs:
         if: github.ref_type == 'tag'
         with:
           tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
-          draft: true
+          name: Release ${{ github.ref }}
           prerelease: false
           make_latest: true
           token: ${{ secrets.GITHUB_TOKEN }}
-          files: ./release-assets/*
+          files: |
+            ./release-assets/Genshin-Wish-Export.zip
+            ./release-assets/Genshin-Wish-Export-Setup.exe
+            ./release-assets/Genshin-Wish-Export.tar.gz
+            ./release-assets/Genshin-Wish-Export.pacman
+            ./release-assets/Genshin-Wish-Export.deb
+            ./release-assets/manifest.json
+            ./release-assets/?????.zip

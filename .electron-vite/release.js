@@ -15,29 +15,21 @@ const releaseFiles = {
       releaseName: 'Genshin-Wish-Export.zip'
     },
     {
-      buildName: `Genshin-Wish-Export-${version}-win.exe`,
-      releaseName: 'Genshin-Wish-Export.exe'
-    },
-    {
-      buildName: 'manifest.json',
-      releaseName: 'manifest.json'
-    },
-    {
-      buildName: patchZip,
-      releaseName: patchZip
+      buildName: `Genshin Wish Export Setup ${version}.exe`,
+      releaseName: 'Genshin-Wish-Export-Setup.exe'
     }
   ],
   'linux': [
     {
-      buildName: `Genshin Wish Export-${version}-linux.tar.gz`,
+      buildName: `genshin-wish-export-${version}.tar.gz`,
       releaseName: 'Genshin-Wish-Export.tar.gz'
     },
     {
-      buildName: `Genshin-Wish-Export-${version}-linux.pacman`,
+      buildName: `genshin-wish-export-${version}.pacman`,
       releaseName: 'Genshin-Wish-Export.pacman'
     },
     {
-      buildName: `Genshin-Wish-Export-${version}-linux.deb`,
+      buildName: `genshin-wish-export_${version}_amd64.deb`,
       releaseName: 'Genshin-Wish-Export.deb'
     }
   ]

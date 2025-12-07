@@ -18,11 +18,9 @@ const createZip = (filePath, dest) => {
 }
 
 const start = async () => {
-  let target = 'win'
-  if (process.argv[2] === 'linux') target = 'linux'
-  const appPath = `./build/${target}-unpacked/resources/app.asar`
+  const appPath = `./build/win-unpacked/resources/app.asar`
   const name = 'app.zip'
-  const outputPath = path.resolve('./build/', target)
+  const outputPath = path.resolve('./build/win')
   const zipPath = path.resolve(outputPath, name)
   await fs.ensureDir(outputPath)
   createZip(appPath, zipPath)
