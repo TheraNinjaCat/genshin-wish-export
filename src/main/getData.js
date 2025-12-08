@@ -8,14 +8,19 @@ const getItemTypeNameMap = require('./gachaTypeMap').getItemTypeNameMap
 const i18n = require('./i18n')
 const { enableProxy, disableProxy } = require('./module/system-proxy')
 const mitmproxy = require('./module/node-mitmproxy')
+const { gachaStats } = require('./gachaStats.js')
 
 const dataMap = new Map()
 let apiDomain = 'https://public-operation-hk4e.mihoyo.com'
 
 const saveData = async (data, url) => {
-  const obj = Object.assign({}, data)
-  obj.result = [...obj.result]
-  obj.typeMap = [...obj.typeMap]
+  const obj = {
+    result: [...data.result],
+    time: data.time,
+    typeMap: [...data.typeMap],
+    uid: data.uid,
+    lang: data.lang
+  }
   if (url) {
     config.urls.set(data.uid, url)
     await config.save()
@@ -43,10 +48,12 @@ const readData = async (force = false) => {
         const data = await readJSON(name)
         data.typeMap = new Map(data.typeMap) || defaultTypeMap
         data.result = new Map(data.result)
+        data.stats = await gachaStats(data.result, data.lang)
         if (data.uid) {
           dataMap.set(data.uid, data)
         }
       } catch (e) {
+        console.error(e)
         sendMsg(e, 'ERROR')
       }
     }
@@ -433,6 +440,7 @@ const fetchData = async (urlOverride) => {
   const localData = dataMap.get(originUid)
   const mergedResult = mergeData(localData, data)
   data.result = mergedResult
+  data.stats = gachaStats(data.result, data.lang)
   dataMap.set(originUid, data)
   await changeCurrent(originUid)
   await saveData(data, url)

@@ -12,7 +12,7 @@
         </el-tooltip>
       </div>
       <div class="flex gap-2">
-        <el-select v-if="state.status !== 'loading' && state.dataMap && (state.dataMap.size > 1 || (state.dataMap.size === 1 && state.current === 0))" class="w-44"   @change="changeCurrent" v-model="uidSelectText">
+        <el-select v-if="state.status !== 'loading' && state.dataMap && (state.dataMap.size > 1 || (state.dataMap.size === 1 && state.current === 0))" class="w-44" v-model="uidSelectText">
           <el-option
             v-for="item of state.dataMap"
             :key="item[0]"
@@ -76,7 +76,6 @@ import { reactive, computed, watch, onMounted } from 'vue'
 import PieChart from './components/PieChart.vue'
 import GachaDetail from './components/GachaDetail.vue'
 import Setting from './components/Setting.vue'
-import gachaDetail from './gachaDetail'
 import { version } from '../../package.json'
 import gachaType from '../gachaType.json'
 import { ElMessage } from 'element-plus'
@@ -106,11 +105,16 @@ const gachaData = computed(() => {
   return state.dataMap.get(state.current)
 })
 
-const uidSelectText = computed(() => {
-  if (state.current === 0) {
-    return state.i18n.ui.select.newAccount
-  } else {
-    return state.current
+const uidSelectText = computed({
+  get() {
+    if (state.current === 0) {
+      return state.i18n.ui.select.newAccount
+    } else {
+      return state.current
+    }
+  },
+  set(newUid) {
+    changeCurrent(newUid)
   }
 })
 
@@ -144,7 +148,8 @@ const hint = computed(() => {
 const detail = computed(() => {
   const data = state.dataMap.get(state.current)
   if (data) {
-    return gachaDetail(data.result)
+    return data.stats
+    // return gachaDetail(data.result, data.capturingRadiance)
   }
 })
 

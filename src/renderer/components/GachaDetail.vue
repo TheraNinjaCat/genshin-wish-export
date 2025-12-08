@@ -34,6 +34,7 @@
     </span>
   </p>
   <p v-if="detail.ssrPos.length" class="text-gray-600 text-xs">{{text.average}}{{colon}}<span class="text-green-600">{{avg5(detail.ssrPos)}}</span></p>
+  <p v-if="type === '301'" :title="text.radianceWarning" class="text-gray-600 text-xs cursor-help">{{text.radianceCounter}}{{colon}}<span :class="capturingRadianceHelpMap.get(detail.capturingRadiance)[1]">{{capturingRadianceHelpMap.get(detail.capturingRadiance)[0]}}</span></p>
 </template>
 
 <script setup>
@@ -47,8 +48,27 @@ const props = defineProps({
 
 const type = computed(() => props.data[0])
 const detail = computed(() => props.data[1])
-const text = computed(() => props.i18n.ui.data)
-const colon = computed(() => props.i18n.symbol.colon)
+const text = computed(() => props.i18n?.ui?.data ?? {})
+const colon = computed(() => props.i18n?.symbol?.colon ?? ':')
+
+const capturingRadianceHelpMap = computed(() => 
+  new Map([
+    [0, [text.value.radianceNoChance, "text-black-600"]],
+    [1, [text.value.radianceSmallChance, "text-blue-600"]],
+    [2, [text.value.radianceDecentChance, "text-green-600"]],
+    [3, [text.value.radianceGuaranteed, "text-amber-600"]],
+  ])
+)
+
+const capturingRadianceHelpText = computed(() => {
+  const map = capturingRadianceHelpMap.value
+  return (
+    Array.from(map.keys())
+    .map((level) => `${level}: ${map.get(level)[0]}`)
+    .join('\n') +
+    `\n${text.value.radianceWarning}`
+  )
+})
 
 const avg5 = (list) => {
   let n = 0
