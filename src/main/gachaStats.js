@@ -21,8 +21,33 @@ const characterTypeNames = new Set([
   '角色', 'Character', '캐릭터', 'キャラクター', 'Personaje', 'Personnage', 'Персонажи', 'ตัวละคร', 'Nhân Vật', 'Figur', 'Karakter', 'Personagem'
 ])
 
+const cosmeticCatNames = new Set([
+  '装扮形录', 'Cosmetic Catalog'
+])
+
+const cosmeticSetNames = new Set([
+  '装扮套装', 'Cosmetic Set'
+])
+
+const cosmeticComNames = new Set([
+  '装扮部件', 'Cosmetic Component'
+])
+
+const expressionNames = new Set([
+  '互动表情', 'Interactive Expressions'
+])
+
+const actionNames = new Set([
+  '互动动作', 'Interactive Actions'
+])
+
 const isCharacter = (name) => characterTypeNames.has(name)
 const isWeapon = (name) => weaponTypeNames.has(name)
+const isCosmeticCat = (name)=> cosmeticCatNames.has(name)
+const isCosmeticSet = (name)=> cosmeticSetNames.has(name)
+const isCosmeticCom = (name)=> cosmeticComNames.has(name)
+const isExpression = (name)=> expressionNames.has(name)
+const isAction = (name)=> actionNames.has(name)
 
 const itemCount = (map, name) => {
   if (!map.has(name)) {
@@ -38,11 +63,21 @@ const gachaStats = async(gacha, lang) => {
     const stats = new Map()
     for (const [gachaType, gachaLog] of gacha) {
         let gachaDetail = {
-            count3: 0, count4: 0, count5: 0,
-            count3w: 0, count4w: 0, count5w: 0,
-            count4c: 0, count5c: 0,
+            count2: 0, count3: 0, count4: 0, count5: 0, // Totals count
+            count3weap: 0, count4weap: 0, count5weap: 0, // 3*, 4*, 5* Weapons
+            count4char: 0, count5char: 0, // 4*, 5* Characters
+            count2ccat: 0, count3ccat: 0, count4ccat: 0, // 2*, 3*, 4* Cosmetic Catalog
+            count4cset: 0, count5cset: 0, // 4*, 5* Cosmetic Set
+            count3ccom: 0, // 3* Cosmetic Component
+            count3exp: 0, // 3* Interactive Expressions
+            count3act: 0, // 3* Interactive Actions
             weapon3: new Map(), weapon4: new Map(), weapon5: new Map(),
             char4: new Map(), char5: new Map(),
+            cosmeticCat2: new Map(), cosmeticCat3: new Map(), cosmeticCat4: new Map(),
+            cosmeticSet4: new Map(), cosmeticSet5: new Map(),
+            cosmeticCom3: new Map(),
+            expressions3: new Map(),
+            actions3: new Map(),
             date: [],
             ssrPos: [], countMio: 0, total: gachaLog.length,
             capturingRadiance: undefined
@@ -55,24 +90,64 @@ const gachaStats = async(gacha, lang) => {
             const timestamp = new Date(time).getTime()
             dateMin = Math.min(timestamp, dateMin)
             dateMax = Math.max(timestamp, dateMax)
-            if (rank === 3) {
+            if (rank === 2) {
+                gachaDetail.count2++
+                gachaDetail.countMio++
+                if (isCosmeticCat(type)) {
+                    gachaDetail.count2ccat++
+                    itemCount(gachaDetail.cosmeticCat2, name)
+                }
+            } else if (rank === 3) {
                 gachaDetail.count3++
                 gachaDetail.countMio++
                 if (isWeapon(type)) {
-                    gachaDetail.count3w++
+                    gachaDetail.count3weap++
                     itemCount(gachaDetail.weapon3, name)
+                } else if (isCosmeticCat(type)) {
+                    gachaDetail.count3ccat++
+                    itemCount(gachaDetail.cosmeticCat3, name)
+                } else if (isCosmeticCom(type)) {
+                    gachaDetail.count3ccom++
+                    itemCount(gachaDetail.cosmeticCom3, name)
+                } else if (isExpression(type)) {
+                    gachaDetail.count3exp++
+                    itemCount(gachaDetail.expressions3, name)
+                } else if (isAction(type)) {
+                    gachaDetail.count3act++
+                    itemCount(gachaDetail.actions3, name)
                 }
             } else if (rank === 4) {
-                gachaDetail.count4++
-                gachaDetail.countMio++
+                if (gachaType === '1000') {
+                    gachaDetail.ssrPos.push([
+                        name,
+                        index + 1 - lastSSR,
+                        time,
+                        wishType
+                    ])
+                    lastSSR = index + 1
+                    gachaDetail.count4++
+                    gachaDetail.countMio = 0
+                } else {
+                    gachaDetail.count4++
+                    gachaDetail.countMio++
+                }
                 if (isWeapon(type)) {
-                    gachaDetail.count4w++
+                    gachaDetail.count4weap++
                     itemCount(gachaDetail.weapon4, name)
                 } else if (isCharacter(type)) {
-                    gachaDetail.count4c++
+                    gachaDetail.count4char++
                     itemCount(gachaDetail.char4, name)
+                } else if (isCosmeticCat(type)) {
+                    gachaDetail.count4ccat++
+                    itemCount(gachaDetail.cosmeticCat4, name)
+                } else if (isCosmeticSet(type)) {
+                    gachaDetail.count4cset++
+                    itemCount(gachaDetail.cosmeticSet4, name)
                 }
             } else if (rank === 5) {
+                if (gachaType === '301') {
+                    gachaDetail.capturingRadiance = await calculateCapturingRadiance(time, name)
+                }
                 gachaDetail.ssrPos.push([
                     name,
                     index + 1 - lastSSR,
@@ -83,14 +158,14 @@ const gachaStats = async(gacha, lang) => {
                 gachaDetail.count5++
                 gachaDetail.countMio++
                 if (isWeapon(type)) {
-                    gachaDetail.count5w++
+                    gachaDetail.count5weap++
                     itemCount(gachaDetail.weapon5, name)
                 } else if (isCharacter(type)) {
-                    gachaDetail.count5c++
+                    gachaDetail.count5char++
                     itemCount(gachaDetail.char5, name)
-                }
-                if (gachaType === '301') {
-                    gachaDetail.capturingRadiance = await calculateCapturingRadiance(time, name)
+                }else if (isCosmeticSet(type)) {
+                    detail.count5cset++
+                    itemCount(detail.cosmeticSet5, name)
                 }
             }
         }))

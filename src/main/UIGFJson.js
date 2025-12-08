@@ -139,6 +139,7 @@ const generateUigf41Json = async (uigfAllAccounts=true) => {
       list: []
     }
     for (const [gachaType, gachaList] of data.result) {
+      if (gachaType == '1000' || gachaType == '2000') continue
       for (const gacha of gachaList){
         const gachaItem = {
           uigf_gacha_type: gachaType,

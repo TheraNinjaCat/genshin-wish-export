@@ -448,7 +448,7 @@ const fetchData = async (urlOverride) => {
   const localData = dataMap.get(originUid)
   const mergedResult = mergeData(localData, data)
   data.result = mergedResult
-  data.stats = gachaStats(data.result, data.lang)
+  data.stats = await gachaStats(data.result, data.lang)
   dataMap.set(originUid, data)
   await changeCurrent(originUid)
   await saveData(data, url)

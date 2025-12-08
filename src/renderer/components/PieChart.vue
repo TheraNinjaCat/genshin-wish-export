@@ -40,26 +40,26 @@ const colors = [
 const parseData = (detail, type) => {
   const text = props.i18n.ui.data;
   const keys = [
-    [text.chara5, "count5c"],
-    [text.weapon5, "count5w"],
-    [text.chara4, "count4c"],
-    [text.weapon4, "count4w"],
-    [text.weapon3, "count3w"],
-    [text.cosmetics4, "count4co"],
-    [text.cosmetics3, "count3co"],
-    [text.cosmetics2, "count2co"],
-    [text.cosmeticSet5, "count5cos"],
-    [text.cosmeticSet4, "count4cos"],
-    [text.cosmeticPart3, "count3cop"],
-    [text.emoji3, "count3e"],
-    [text.action3, "count3a"],
+    [text.chara5, "count5char"],
+    [text.weapon5, "count5weap"],
+    [text.chara4, "count4char"],
+    [text.weapon4, "count4weap"],
+    [text.weapon3, "count3weap"],
+    [text.cosmeticCat4, "count4ccat"],
+    [text.cosmeticCat3, "count3ccat"],
+    [text.cosmeticCat2, "count2ccat"],
+    [text.cosmeticSet5, "count5cset"],
+    [text.cosmeticSet4, "count4cset"],
+    [text.cosmeticCom3, "count3ccom"],
+    [text.expression3, "count3exp"],
+    [text.action3, "count3act"],
   ];
   const result = [];
   const color = [];
   const selected = {
     [text.weapon3]: false,
-    [text.cosmetics2]: false,
-    [text.cosmeticPart3]: false,
+    [text.cosmeticCat2]: false,
+    [text.cosmeticCom3]: false,
   };
   keys.forEach((key, index) => {
     if (!detail[key[1]]) return;
