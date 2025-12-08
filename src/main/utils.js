@@ -41,7 +41,7 @@ if (isInstalled) { // If the app is installed, use %appdata% or ~/.config for st
 let win = null
 const initWindow = () => {
   let mainWindowState = windowStateKeeper({
-    defaultWidth: 888,
+    defaultWidth: 910,
     defaultHeight: 550
   })
   win = new BrowserWindow({

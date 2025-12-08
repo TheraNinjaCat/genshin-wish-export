@@ -10,9 +10,12 @@ const config = {
   autoUpdate: true,
   fetchFullHistory: false,
   hideNovice: true,
+  hideMiliastra: false,
   gistsToken: '',
   gistsId: '',
-  readableJSON: false
+  readableJSON: false,
+  gameDetection: 0,
+  gameLocation: null
 }
 
 const getLocalConfig = async () => {

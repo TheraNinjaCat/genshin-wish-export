@@ -15,7 +15,7 @@
         </el-tooltip>
       </div>
       <div class="flex gap-2">
-        <el-select v-if="state.status !== 'loading' && state.dataMap && (state.dataMap.size > 1 || (state.dataMap.size === 1 && state.current === 0))" class="w-44"   @change="changeCurrent" v-model="uidSelectText">
+        <el-select v-if="state.status !== 'loading' && state.dataMap && (state.dataMap.size > 1 || (state.dataMap.size === 1 && state.current === 0))" class="w-44" v-model="uidSelectText">
           <el-option
             v-for="item of state.dataMap"
             :key="item[0]"
@@ -38,12 +38,10 @@
     </div>
     <p class="text-gray-400 my-2 text-xs">{{hint}}<el-button @click="(state.showCacheCleanDlg=true)" v-if="state.authkeyTimeout" style="margin-left: 8px;" size="small" plain round>{{ui.button.solution}}</el-button></p>
     <div v-if="detail" class="gap-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 2xl:grid-cols-4">
-      <div class="mb-4" v-for="(item, i) of detail" :key="i">
-        <div :class="{hidden: state.config.hideNovice && item[0] === '100'}">
-          <p class="text-center text-gray-600 my-2">{{typeMap.get(item[0])}}</p>
-          <pie-chart :data="item" :i18n="state.i18n" :typeMap="typeMap"></pie-chart>
-          <gacha-detail :i18n="state.i18n" :data="item" :typeMap="typeMap"></gacha-detail>
-        </div>
+      <div class="mb-4" v-for="(item, i) of detail" :key="i" v-show="showItem(item[0])">
+        <p class="text-center text-gray-600 my-2">{{typeMap.get(item[0])}}</p>
+        <pie-chart :data="item" :i18n="state.i18n" :typeMap="typeMap"></pie-chart>
+        <gacha-detail :i18n="state.i18n" :data="item" :typeMap="typeMap"></gacha-detail>
       </div>
     </div>
     <Setting v-show="state.showSetting" :i18n="state.i18n" @changeLang="getI18nData()" @close="showSetting(false)"
@@ -79,7 +77,6 @@ import { reactive, computed, watch, onMounted } from 'vue'
 import PieChart from './components/PieChart.vue'
 import GachaDetail from './components/GachaDetail.vue'
 import Setting from './components/Setting.vue'
-import gachaDetail from './gachaDetail'
 import { version } from '../../package.json'
 import gachaType from '../gachaType.json'
 import { openLink } from './utils.js'
@@ -111,11 +108,16 @@ const gachaData = computed(() => {
   return state.dataMap.get(state.current)
 })
 
-const uidSelectText = computed(() => {
-  if (state.current === 0) {
-    return state.i18n.ui.select.newAccount
-  } else {
-    return state.current
+const uidSelectText = computed({
+  get() {
+    if (state.current === 0) {
+      return state.i18n.ui.select.newAccount
+    } else {
+      return state.current
+    }
+  },
+  set(newUid) {
+    changeCurrent(newUid)
   }
 })
 
@@ -146,10 +148,16 @@ const hint = computed(() => {
   return '　'
 })
 
+const showItem = (type) => {
+  if (state.config.hideNovice && type === "100") return false
+  if (state.config.hideMiliastra && (type === "1000" || type === "2000")) return false
+  return true
+}
+
 const detail = computed(() => {
   const data = state.dataMap.get(state.current)
   if (data) {
-    return gachaDetail(data.result)
+    return data.stats
   }
 })
 
