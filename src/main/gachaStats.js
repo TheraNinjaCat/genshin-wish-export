@@ -86,7 +86,8 @@ const gachaStats = async(gacha, lang) => {
         let dateMin = Infinity
         let dateMax = 0
         const calculateCapturingRadiance = capturingRadianceFunction(lang)
-        await Promise.all(gachaLog.map(async ([time, name, type, rank, wishType], index) => {
+        for (let index = 0; index < gachaLog.length; index++) {
+            const [time, name, type, rank, wishType] = gachaLog[index]
             const timestamp = new Date(time).getTime()
             dateMin = Math.min(timestamp, dateMin)
             dateMax = Math.max(timestamp, dateMax)
@@ -156,7 +157,7 @@ const gachaStats = async(gacha, lang) => {
                 ])
                 lastSSR = index + 1
                 gachaDetail.count5++
-                gachaDetail.countMio++
+                gachaDetail.countMio = 0
                 if (isWeapon(type)) {
                     gachaDetail.count5weap++
                     itemCount(gachaDetail.weapon5, name)
@@ -168,7 +169,7 @@ const gachaStats = async(gacha, lang) => {
                     itemCount(detail.cosmeticSet5, name)
                 }
             }
-        }))
+        }
         gachaDetail.date = [dateMin, dateMax]
         if (gachaDetail.total > 0) stats.set(gachaType, gachaDetail)
     }

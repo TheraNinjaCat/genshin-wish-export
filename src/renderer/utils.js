@@ -10,5 +10,5 @@ const IconInstaller = (app) => {
 const openLink = (link) => shell.openExternal(link)
 
 export {
-  IconInstaller
+  IconInstaller, openLink
 }
