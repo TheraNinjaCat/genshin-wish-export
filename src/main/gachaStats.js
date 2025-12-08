@@ -80,7 +80,7 @@ const gachaStats = async(gacha, lang) => {
             actions3: new Map(),
             date: [],
             ssrPos: [], countMio: 0, total: gachaLog.length,
-            capturingRadiance: undefined
+            capturingRadiance: gachaType === '301' ? 1 : undefined
         }
         let lastSSR = 0
         let dateMin = Infinity

@@ -22,7 +22,7 @@ if (process.platform == 'win32') {
   const regRoots = ["HKLM", "HKCU"]
   regRoots.forEach((regRoot) => { // Check if the apps GUID is installed for either current user or all users
     try {
-      execSync(`reg query ${regRoot}\\Software\\${process.env.npm_package_config_appGuid}`)
+      execSync(`reg query ${regRoot}\\Software\\${process.env.npm_package_config_appGuid}`, {stdio: 'pipe'})
       isInstalled = true
     } catch (err) {}
   })
