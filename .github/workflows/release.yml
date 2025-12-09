@@ -27,7 +27,7 @@ jobs:
         with:
           name: windows-assets
           path: |
-            ./build/win/Genshin-Wish-Export.zip
+            ./build/win/Genshin-Wish-Export-win.zip
             ./build/win/Genshin-Wish-Export-Setup.exe
             ./build/win/manifest.json
             ./build/win/?????.zip
@@ -53,7 +53,7 @@ jobs:
         with:
           name: linux-assets
           path: |
-            ./build/linux/Genshin-Wish-Export.tar.gz
+            ./build/linux/Genshin-Wish-Export-linux.tar.gz
             ./build/linux/Genshin-Wish-Export.pacman
             ./build/linux/Genshin-Wish-Export.deb
   create-release:
@@ -82,9 +82,9 @@ jobs:
           preserve_order: true
           token: ${{ secrets.GITHUB_TOKEN }}
           files: |
-            ./release-assets/Genshin-Wish-Export.zip
+            ./release-assets/Genshin-Wish-Export-win.zip
             ./release-assets/Genshin-Wish-Export-Setup.exe
-            ./release-assets/Genshin-Wish-Export.tar.gz
+            ./release-assets/Genshin-Wish-Export-linux.tar.gz
             ./release-assets/Genshin-Wish-Export.pacman
             ./release-assets/Genshin-Wish-Export.deb
             ./release-assets/manifest.json
