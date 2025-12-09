@@ -527,6 +527,10 @@ ipcMain.handle('OPEN_CACHE_FOLDER', () => {
   }
 })
 
+ipcMain.handle('OPEN_DATA_FOLDER', () => {
+  shell.openPath(userDataPath)
+})
+
 ipcMain.handle('COPY_URL', async () => {
   const url = await getUrl()
   if (url) {

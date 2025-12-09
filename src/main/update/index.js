@@ -24,7 +24,7 @@ const updateInfo = {
   error: null
 }
 
-const updateURL = `${process.npm_package_homepage}/releases/latest`
+const updateURL = `https://github.com/TheraNinjaCat/genshin-wish-export/releases/latest`
 const patchURL = `${updateURL}/download`
 const isDev = !app.isPackaged
 const appPath = isDev ? path.resolve(__dirname, '../../', 'update-dev/app.asar'): app.getAppPath()

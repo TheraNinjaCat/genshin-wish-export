@@ -31,6 +31,7 @@
               <el-dropdown-item :disabled="!allowClick() || state.status === 'loading'" command="url" icon="link">{{ui.button.url}}</el-dropdown-item>
               <el-dropdown-item :disabled="!allowClick() || state.status === 'loading'" command="proxy" icon="position">{{ui.button.startProxy}}</el-dropdown-item>
               <el-dropdown-item command="copyUrl" icon="DocumentCopy">{{ui.button.copyUrl}}</el-dropdown-item>
+              <el-dropdown-item command="openUserDataFolder" icon="Folder">{{ui.button.openUserData}}</el-dropdown-item>
             </el-dropdown-menu>
           </template>
         </el-dropdown>
@@ -166,6 +167,7 @@ const typeMap = computed(() => {
   const result = new Map()
   if (type) {
     for (let { key, name } of type) {
+      if (key === '1000' || key === '2000') name = `${state.i18n.ui.data.miliastra}${state.i18n.symbol.colon} ${name}`
       result.set(key, name)
     }
   }
@@ -211,6 +213,10 @@ const openCacheFolder = async () => {
   await ipcRenderer.invoke('OPEN_CACHE_FOLDER')
 }
 
+const openUserDataFolder = async () => {
+  await ipcRenderer.invoke('OPEN_DATA_FOLDER')
+}
+
 const changeCurrent = async (uid) => {
   if (uid === 0) {
     state.status = 'init'
@@ -253,6 +259,8 @@ const optionCommand = (type) => {
     fetchData('proxy')
   } else if (type === 'copyUrl') {
     copyUrl()
+  } else if (type === 'openUserDataFolder') {
+    openUserDataFolder()
   }
 }
 

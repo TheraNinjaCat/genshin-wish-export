@@ -30,7 +30,7 @@ const start = async () => {
   const workbook = new ExcelJS.Workbook()
   for (let [key, value] of data.result) {
     const name = data.typeMap.get(key)
-    const sheet = workbook.addWorksheet(name, {views: [{state: 'frozen', ySplit: 1}]})
+    const sheet = workbook.addWorksheet(name.replace(/[*?:\\/[\]]/g, ''), {views: [{state: 'frozen', ySplit: 1}]})
     let width = [24, 14, 8, 8, 8, 8, 8]
     if (!data.lang.includes('zh-')) {
       width = [24, 32, 16, 12, 12, 12, 8]
@@ -100,6 +100,7 @@ const start = async () => {
         }
         // rare rank background color
         const rankColor = {
+          2: "ff8e8e8e",
           3: "ff8e8e8e",
           4: "ffa256e1",
           5: "ffbd6932",
@@ -107,7 +108,7 @@ const start = async () => {
         sheet.getCell(`${c}${i + 2}`).font = {
           name: customFont,
           color: { argb: rankColor[v[3]] },
-          bold : v[3]!="3"
+          bold : parseInt(v[3]) > 3
         }
       })
     })
@@ -115,7 +116,7 @@ const start = async () => {
 
   const buffer = await workbook.xlsx.writeBuffer()
   const filePath = dialog.showSaveDialogSync({
-    defaultPath: path.join(app.getPath('downloads'), `${filePrefix}_${getTimeString()}`),
+    defaultPath: path.join(app.getPath('downloads'), `${filePrefix}_${getTimeString()}.xlsx`),
     filters: [
       { name: fileType, extensions: ['xlsx'] }
     ]
