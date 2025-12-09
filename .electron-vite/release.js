@@ -12,7 +12,7 @@ const releaseFiles = {
   'win': [
     {
       buildName: `Genshin Wish Export-${version}-win.zip`,
-      releaseName: 'Genshin-Wish-Export.zip'
+      releaseName: 'Genshin-Wish-Export-win.zip'
     },
     {
       buildName: `Genshin Wish Export Setup ${version}.exe`,
@@ -22,7 +22,7 @@ const releaseFiles = {
   'linux': [
     {
       buildName: `genshin-wish-export-${version}.tar.gz`,
-      releaseName: 'Genshin-Wish-Export.tar.gz'
+      releaseName: 'Genshin-Wish-Export-linux.tar.gz'
     },
     {
       buildName: `genshin-wish-export-${version}.pacman`,
