@@ -11,7 +11,7 @@
           <el-button @click="relaunch()" type="success" icon="refresh"   class="focus:outline-none" style="margin-left: 48px">{{ui.button.directUpdate}}</el-button>
         </el-tooltip>
         <el-tooltip v-if="state.updateStatus === 'available'" :content="ui.hint.updateHint" placement="bottom">
-          <el-button @click="openLink(`https://github.com/biuuu/genshin-wish-export/releases/latest`)" type="success" icon="download"   class="focus:outline-none" style="margin-left: 48px">{{ui.button.downloadUpdate}}</el-button>
+          <el-button @click="openLink(`https://github.com/TheraNinjaCat/genshin-wish-export/releases/latest`)" type="success" icon="download"   class="focus:outline-none" style="margin-left: 48px">{{ui.button.downloadUpdate}}</el-button>
         </el-tooltip>
       </div>
       <div class="flex gap-2">
