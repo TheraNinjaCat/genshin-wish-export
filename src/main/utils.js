@@ -13,7 +13,7 @@ const { execSync } = require('node:child_process')
 const readdir = util.promisify(fs.readdir)
 
 const isDev = !app.isPackaged
-
+const log = []
 const appRoot = isDev ? path.resolve(__dirname, '..', '..') : path.resolve(app.getAppPath(), '..', '..')
 let userDataPath = path.resolve(appRoot, 'userData')
 const userPath = app.getPath('userData')
@@ -22,7 +22,7 @@ if (process.platform == 'win32') {
   const regRoots = ["HKLM", "HKCU"]
   regRoots.forEach((regRoot) => { // Check if the apps GUID is installed for either current user or all users
     try {
-      execSync(`reg query ${regRoot}\\Software\\${process.env.npm_package_config_appGuid}`, {stdio: 'pipe'})
+      execSync(`reg query ${regRoot}\\Software\\6b6375ab-5409-4810-bf67-51a9c29f3bd3`, {stdio: 'pipe'})
       isInstalled = true
     } catch (err) {}
   })
@@ -62,7 +62,6 @@ const initWindow = () => {
 
 const getWin = () => win
 
-const log = []
 const sendMsg = (text, type = 'LOAD_DATA_STATUS') => {
   if (win) {
     win.webContents.send(type, text)

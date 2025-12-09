@@ -6,9 +6,6 @@
   "homepage": "https://github.com/TheraNinjaCat/genshin-wish-export",
   "description": "A tool to export and save wish history from Genshin Impact",
   "license": "MIT",
-  "config": {
-    "appGuid": "6b6375ab-5409-4810-bf67-51a9c29f3bd3"
-  },
   "scripts": {
     "dev": "node .electron-vite/dev-runner.js",
     "build": "cross-env BUILD_TARGET=clean node .electron-vite/build.js && electron-builder",
